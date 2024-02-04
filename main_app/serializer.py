@@ -1,17 +1,10 @@
 from rest_framework import serializers
 from .models import Calls, Clients, Medics
 
-class CallsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Calls 
-        fields='__all__'
-
-        
-class ClientsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Clients 
-        fields = '__all__'
-class MedicsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Medics 
-        fields = '__all__'
+class ClientSerializer(serializers.Serializer):
+    clientName = serializers.CharField(max_length=40),
+    clientSurname  = serializers.CharField(max_length=40)
+    phoneNumber = serializers.CharField(max_length=11)
+    password = serializers.CharField(max_length=30)
+    age = serializers.IntegerField()
+    sex = serializers.CharField(max_length=1)
