@@ -63,9 +63,9 @@ class Calls(models.Model):
 
     diagnose = models.CharField(max_length=40, verbose_name='Предварительный диагноз при вызове')
     time_created = models.DateTimeField(auto_now_add=True, verbose_name='Время поступления вызова')
-    time_accepted = models.DateTimeField(verbose_name='Время принятия вызова')
-    time_arrived = models.DateTimeField(verbose_name='Время прибытия на вызов')
-    category = models.IntegerField(default=3)
+    time_accepted = models.DateTimeField(verbose_name='Время принятия вызова', null=True)
+    time_arrived = models.DateTimeField(verbose_name='Время прибытия на вызов', null=True)
+    category = models.IntegerField(default=-1)
     lat = models.FloatField(default=0)
     long = models.FloatField(default=0)
     is_accepted = models.BooleanField(default=False)
