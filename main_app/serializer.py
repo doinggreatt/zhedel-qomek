@@ -5,11 +5,7 @@ from rest_framework.response import Response
 
 
 class ClientSerializer(serializers.Serializer):
- #   class Meta:
- #       model = Clients 
- #       fields = "__all__"
-   
-   
+
     clientName = serializers.CharField(max_length=40)
     clientSurname = serializers.CharField(max_length=40)
     phoneNumber = serializers.CharField(max_length=11)
@@ -27,10 +23,8 @@ class ClientSerializer(serializers.Serializer):
         return instance
 
 
-
-
-
 class CallSerializer(serializers.Serializer):
+
     client_id = serializers.IntegerField()
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
@@ -40,11 +34,49 @@ class CallSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         street = ClientStreet(validated_data['latitude'], validated_data['longitude']).output
-        car_id = Cars.objects.get(id=1) 
+
         client = Clients.objects.get(id=1)
         validated_data['address'] = street
-        Calls.objects.create(car_id=car_id, client_id=client, client_phone=client, 
-        diagnose=validated_data['diagnose'], category=validated_data['category'], address=street)
+        Calls.objects.create(car_id=None,client_id=client, client_phone=client, 
+        diagnose=validated_data['diagnose'], category=validated_data['category'], address=street, lat=validated_data['latitude'], long=validated_data['longitude'])
         return validated_data
-        
     
+
+
+class CallUpdateSerializer(serializers.Serializer):
+  
+    is_arrived = serializers.BooleanField(required=False)
+
+    def update(self, instance, validated_data):
+
+        instance.is_arrived = validated_data.get("is_arrived", instance.is_arrived)
+        instance.save()
+        return instance
+        
+
+
+class CarGeoSerializer(serializers.Serializer):
+    lat=serializers.FloatField()
+    long=serializers.FloatField()
+
+    def update(self, instance, validated_data):
+        instance.lat = validated_data.get("lat", instance.lat)
+        instance.long = validated_data.get("long", instance.long)
+        instance.save()
+        return instance
+
+class CarUpdateSerializer(serializers.Serializer):
+    is_working = serializers.BooleanField(required=True)
+
+    def update(self, instance, validated_data):
+        instance.is_working = validated_data.get("is_working")
+        instance.save()
+        return instance
+    
+class IsArrivedSerializer(serializers.Serializer):
+    is_arrived = serializers.BooleanField(required=True)
+
+    def update(self, instance, validated_data):
+        instance.is_arrived = validated_data.get("is_arrived")
+        instance.save()
+        return instance
