@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics, status
 from .models import Calls, Clients, Medics, Cars
-from .serializer import ClientSerializer
+from .serializer import ClientSerializer, CallSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 import redis, json
@@ -15,17 +15,37 @@ redis_instance = redis.StrictRedis(host=settings.REDIS_HOST,
 
 class ClientCreate(APIView):
     def post(self, request):
-        serializer= ClientSerializer(data=request.data)
+        serializer=ClientSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        new_record = Clients.objects.create(
-                clientName = request.data['clientName'],
-                clientSurname = request.data['clientSurname'],
-                phoneNumber = request.data['phoneNumber'],
-                password = request.data['password'],
-                age = request.data['age'],
-                sex = request.data['sex'],
-        )
+        serializer.save()
 
-        return Response({'data': ClientSerializer(new_record).data})
+        return Response({'data_post': serializer.data})
+
+    def put(self, request, *args, **kwargs):
+        pk = kwargs.get("pk", None)
+        if not pk:
+            return Response({"error": "Method PUT not allowed"})
+
+        try:
+            instance = Clients.objects.get(pk=pk)
+        except:
+            return Response({"error":"Object does not exists"})
+
+        serializer = ClientSerializer(data=request.data, instance=instance)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"data_put": serializer.data})
 
 
+class CalcAddress():
+    def __init__(self, lat, long):
+        print(lat, long)
+
+class CallCreate(APIView):
+    def post(self, request):
+        request.data['client_phone'] = Clients.objects.get(id=request.data['client_id']).phoneNumber
+        serializer = CallSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        response_data = serializer.data
+        return Response({"data": {"address":serializer.data['address']}}, status=status.HTTP_200_OK)

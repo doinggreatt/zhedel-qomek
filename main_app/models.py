@@ -44,7 +44,7 @@ class Clients(models.Model):
 class Calls(models.Model):
     car_id = models.ForeignKey(Cars, on_delete=models.PROTECT, verbose_name='id кареты', blank=True)
     client_id = models.ForeignKey(Clients, on_delete=models.PROTECT, verbose_name='id клиента')
-    address = models.CharField(max_length=40, verbose_name='Адрес вызова')
+    address = models.CharField(max_length=100, verbose_name='Адрес вызова')
     client_phone = models.ForeignKey(Clients, to_field='phoneNumber', related_name='client_phones', on_delete=models.PROTECT)
 
     diagnose = models.CharField(max_length=40, verbose_name='Предварительный диагноз при вызове')
