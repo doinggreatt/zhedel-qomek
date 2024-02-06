@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Calls, Clients, Medics, Cars
 from .geologic import ClientStreet
 from rest_framework.response import Response
-
+from django.contrib.auth.hashers import make_password
 
 class ClientSerializer(serializers.Serializer):
 
@@ -14,6 +14,7 @@ class ClientSerializer(serializers.Serializer):
     sex = serializers.CharField(max_length=1)
 
     def create(self, validated_data):
+        validated_data['password'] = make_password(validated_data['password'])
         return Clients.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
