@@ -36,7 +36,7 @@ class CallSerializer(serializers.Serializer):
     def create(self, validated_data):
         street = ClientStreet(validated_data['latitude'], validated_data['longitude']).output
 
-        client = Clients.objects.get(id=1)
+        client = Clients.objects.get(id=validated_data['client_id'])
         validated_data['address'] = street
         Calls.objects.create(car_id=None,client_id=client, client_phone=client, 
         diagnose=validated_data['diagnose'], category=validated_data['category'], address=street, lat=validated_data['latitude'], long=validated_data['longitude'])

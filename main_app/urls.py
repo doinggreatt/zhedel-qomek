@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns =[
     path('api/v1/create_call', views.CallCreate.as_view()),
-    path('api/v1/create_client', views.ClientCreate.as_view()),
+    path('api/v1/create_client', views.ClientCreate.as_view()), # POST, creating clients
     path('api/v1/update_client/<int:pk>', views.ClientCreate.as_view()),
     path('api/v1/call_accepted/<int:pk>', views.CallCreate.as_view()),
     path('api/v1/update_working_status/<int:pk>', views.CarsUpdate.as_view()),
