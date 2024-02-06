@@ -30,36 +30,12 @@ class Cars(models.Model):
     class Meta:
         verbose_name=verbose_name_plural='Зарегистрированные кареты'
 
-class Medics(models.Model):
-    car_id = models.ForeignKey(Cars, on_delete=models.PROTECT, default=None)
-    medicName = models.CharField(max_length=30, verbose_name='Имя врача')
-    medicSurname = models.CharField(max_length=30, verbose_name='Фамилия врача')
-    medic_position = models.CharField(max_length=15, verbose_name='Должность врача')
-    is_working = models.BooleanField(default=False, verbose_name='На смене')
-    class Meta:
-        verbose_name=verbose_name_plural= 'Мед.работники'
-
-class Clients(models.Model):
-    SEX_CHOICES=[
-        ("M", "Male"),
-        ("F", "Female")
-    ]
-
-    clientName = models.CharField(max_length=30, verbose_name='Имя клиента')
-    clientSurname = models.CharField(max_length=30, verbose_name='Фамилия клиента')
-    phoneNumber = models.CharField(max_length=11, unique=True, verbose_name='Номер телефона')
-    age = models.IntegerField()
-    sex = models.CharField(choices=SEX_CHOICES, max_length=1)
-
-    password = models.CharField(max_length=255, verbose_name='Пароль пользователя', default='0')
-    class Meta:
-        verbose_name=verbose_name_plural='Клиенты'
-
 class Calls(models.Model):
     car_id = models.ForeignKey(Cars, on_delete=models.PROTECT, verbose_name='id кареты', null=True)
-    client_id = models.ForeignKey(Clients, on_delete=models.PROTECT, verbose_name='id клиента')
+    client_name = models.CharField(max_length=30, default='0')
     address = models.CharField(max_length=100, verbose_name='Адрес вызова')
-    client_phone = models.ForeignKey(Clients, to_field='phoneNumber', related_name='client_phones', on_delete=models.PROTECT)
+    
+    client_phone = models.CharField(max_length=11)
 
     diagnose = models.CharField(max_length=40, verbose_name='Предварительный диагноз при вызове')
     time_created = models.DateTimeField(auto_now_add=True, verbose_name='Время поступления вызова')

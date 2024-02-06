@@ -37,7 +37,7 @@ class FindNearest():
                 
         if len(list(get_cars_free))>0:
             for c in get_cars_free:
-                cars_free.append({'id': c.id, 'pos': (c.lat, c.long)})
+                cars_free.append({'id': c.car_id, 'pos': (c.lat, c.long)})
 
         else:
             return None
@@ -47,9 +47,12 @@ class FindNearest():
             dist = geodesic(cl_pos, car_pos).meters 
             near_drivers.append({
                     'id': cars_free[i]['id'],
-                    'distance': dist 
+                    'distance': dist
                     })
 
         drivers_sorted = sorted(near_drivers, key=lambda x: x['distance'])
         returned_car = drivers_sorted[0]
+        a = CarsPosition.objects.get(car_id=returned_car['id'])
+        a.is_free =False 
+        a.save()
         return returned_car

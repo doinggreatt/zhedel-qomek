@@ -1,32 +1,14 @@
 from rest_framework import serializers
-from .models import Calls, Clients, Medics, Cars
+from .models import Calls, Cars
 from .geologic import ClientStreet
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 
-class ClientSerializer(serializers.Serializer):
-
-    clientName = serializers.CharField(max_length=40)
-    clientSurname = serializers.CharField(max_length=40)
-    phoneNumber = serializers.CharField(max_length=11)
-    password = serializers.CharField(max_length=30)
-    age = serializers.IntegerField()
-    sex = serializers.CharField(max_length=1)
-
-    def create(self, validated_data):
-        validated_data['password'] = make_password(validated_data['password'])
-        return Clients.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        instance.clientName = validated_data.get("clientName", instance.clientName)
-        instance.password = validated_data.get("password", instance.password)
-        instance.save()
-        return instance
-
 
 class CallSerializer(serializers.Serializer):
 
-    client_id = serializers.IntegerField()
+    client_name = serializers.CharField()
+    client_number = serializers.CharField()
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
     diagnose= serializers.CharField(max_length=20)
@@ -36,12 +18,11 @@ class CallSerializer(serializers.Serializer):
     def create(self, validated_data):
         street = ClientStreet(validated_data['latitude'], validated_data['longitude']).output
 
-        client = Clients.objects.get(id=validated_data['client_id'])
         validated_data['address'] = street
-        Calls.objects.create(car_id=None,client_id=client, client_phone=client, 
+        Calls.objects.create(car_id=None,client_name=validated_data['client_name'], client_phone=validated_data['client_number'], 
         diagnose=validated_data['diagnose'], category=validated_data['category'], address=street, lat=validated_data['latitude'], long=validated_data['longitude'])
         return validated_data
-    
+
 
 
 class CallUpdateSerializer(serializers.Serializer):
@@ -54,6 +35,7 @@ class CallUpdateSerializer(serializers.Serializer):
         instance.save()
         return instance
         
+
 
 
 class CarGeoSerializer(serializers.Serializer):

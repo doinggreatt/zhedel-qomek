@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics, status
-from .models import Calls, Clients, Medics, Cars, CarsPosition
-from .serializer import ClientSerializer, CallSerializer, CallUpdateSerializer, CarUpdateSerializer, CarGeoSerializer, IsArrivedSerializer
+from .models import Calls, Cars, CarsPosition
+from .serializer import  CallSerializer, CallUpdateSerializer, CarUpdateSerializer, CarGeoSerializer, IsArrivedSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 import redis, json
@@ -15,35 +15,8 @@ from .geologic import FindNearest
 
 
 
-
-class ClientCreate(APIView):
-    def post(self, request):
-        serializer=ClientSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response({'data_post': serializer.data})
-
-    def put(self, request, *args, **kwargs):
-        pk = kwargs.get("pk", None)
-        if not pk:
-            return Response({"error": "Method PUT not allowed"})
-
-        try:
-            instance = Clients.objects.get(pk=pk)
-        except:
-            return Response({"error":"Object does not exists"})
-
-        serializer = ClientSerializer(data=request.data, instance=instance)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({"data_put": serializer.data})
-
-
-
 class CallCreate(APIView):
     def post(self, request):
-        request.data['client_phone'] = Clients.objects.get(id=request.data['client_id']).phoneNumber
         serializer = CallSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -76,12 +49,18 @@ class CallCreate(APIView):
             if nearest_car:
                 distance = nearest_car['distance']
                 instance.is_accepted=True
+                instance.car_id_id  =Cars.objects.get(id=nearest_car['id'])
+                car_lat = CarsPosition.objects.get(car_id = instance.car_id_id).lat 
+                car_long = CarsPosition.objects.get(car_id = instance.car_id_id).long
                 instance.save()
-                return Response({"status": "Your call accepted", "distance": distance})
+                return Response({"lat": car_lat, "long": car_long })
             else:
                 return Response({"status": "Call not accepted yet, finding car"})
         else:
-            return Response({"status": "Call already accepted, car in the way!"})
+            _id= instance.car_id_id 
+            car_lat = CarsPosition.objects.get(car_id=_id).lat 
+            car_long = CarsPosition.objects.get(car_id=_id).long
+            return Response({"car_lat": f"{car_lat}", "car_long": f"{car_long}"})
 
 
 
@@ -105,7 +84,7 @@ class CarsUpdate(APIView):
 
 class CarGeoUpdate(APIView):
     def put(self, request, *args, **kwargs):
-        pk = kwargs.get("pk", None)
+        pk = kwargs.get("id", None)
         if not pk:
             return Response({"error" : "Method PUT not allowed"})
         try:
@@ -116,6 +95,7 @@ class CarGeoUpdate(APIView):
         serializer = CarGeoSerializer(data=request.data, instance=instance)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
         return Response(status=status.HTTP_200_OK)
         
 class SetCallArrived(APIView):
