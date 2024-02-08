@@ -16,15 +16,15 @@ from .geologic import FindNearest
 
 
 class CallCreate(APIView):
-    def post(self, request):
+    def post(self, request): # Creating new call with POST request
         serializer = CallSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         response_data = serializer.data
 
-        return Response({"data": {"status": "Call created and sent", "address":serializer.data['address']}}, status=status.HTTP_200_OK) 
+        return Response({"data": {"status": "call created", "address":serializer.data['address']}}, status=status.HTTP_200_OK) 
 
-    def put(self, request, *agrs, **kwargs):
+    def put(self, request, *agrs, **kwargs): # UPDATE request for updating call's status / created or not
         pk = kwargs.get("pk", None)
         if not pk:
             return Response({"error": "Method PUT not allowed"})
@@ -46,21 +46,30 @@ class CallCreate(APIView):
         if instance.is_accepted == False:
             _car = FindNearest(instance.lat, instance.long)
             nearest_car = _car.find_nearest()
-            if nearest_car:
+            if nearest_car: # Если ближайшая машина нашлась, нужно зарегистрировать адрес вызова для водителя!
                 distance = nearest_car['distance']
                 instance.is_accepted=True
                 instance.car_id_id  =Cars.objects.get(id=nearest_car['id'])
-                car_lat = CarsPosition.objects.get(car_id = instance.car_id_id).lat 
-                car_long = CarsPosition.objects.get(car_id = instance.car_id_id).long
+                current_car = CarsPosition.objects.get(car_id = instance.car_id_id)
+                car_lat = current_car.lat 
+                car_long = current_car.long
+                current_car.call_address = instance.address
+                print(current_car.call_address)
+                current_car.save()
+                print(current_car.call_address)
                 instance.save()
-                return Response({"lat": car_lat, "long": car_long })
-            else:
+                return Response({"lat": car_lat, "long": car_long})
+            else: # Если ближайшая машина не нашлась
                 return Response({"status": "Call not accepted yet, finding car"})
         else:
             _id= instance.car_id_id 
             car_lat = CarsPosition.objects.get(car_id=_id).lat 
             car_long = CarsPosition.objects.get(car_id=_id).long
+            current_car = CarsPosition.objects.get(car_id = instance.car_id_id)
             return Response({"car_lat": f"{car_lat}", "car_long": f"{car_long}"})
+
+
+
 
 
 

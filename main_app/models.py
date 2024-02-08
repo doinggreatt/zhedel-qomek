@@ -63,4 +63,5 @@ class CarsPosition(models.Model):
     lat = models.FloatField()
     long = models.FloatField()
     is_free = models.BooleanField(default=True)
+    call_address = models.CharField(default='None')
 

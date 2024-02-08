@@ -20,7 +20,7 @@ class ClientStreet():
             else:
                 return None
         except GeocoderTimedOut:
-            raise exception('Error') 
+            raise exception('Error, API service unavailable, try again!') 
 
 
 class FindNearest():

@@ -42,6 +42,7 @@ class CarGeoSerializer(serializers.Serializer):
     lat=serializers.FloatField()
     long=serializers.FloatField()
 
+
     def update(self, instance, validated_data):
         instance.lat = validated_data.get("lat", instance.lat)
         instance.long = validated_data.get("long", instance.long)
