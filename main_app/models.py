@@ -3,7 +3,7 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver 
 from django.utils import timezone
 from django.db.models.signals import post_save
-
+from django.db.models import Max
 
 class Drivers(models.Model):
     driverName = models.CharField(max_length=30, verbose_name='Имя водителя')
@@ -19,7 +19,9 @@ class Cars(models.Model):
     def save(self, *args, **kwargs):
 
         if self.is_working:
-            CarsPosition.objects.create(car_id=self.id, lat=0, long=0)
+            max_id_record = CarsPosition.objects.aggregate(max_id=Max('id'))
+            max_id_value = max_id_record['max_id'] if max_id_record['max_id'] is not None else 0 
+            CarsPosition.objects.create(id=max_id_value+1,car_id=self.id, lat=0, long=0)
         else:
             CarsPosition.objects.filter(car_id=self.id).delete()
         super().save(*args, **kwargs)
@@ -31,6 +33,7 @@ class Cars(models.Model):
         verbose_name=verbose_name_plural='Зарегистрированные кареты'
 
 class Calls(models.Model):
+    id = models.IntegerField(primary_key = True)
     car_id = models.ForeignKey(Cars, on_delete=models.PROTECT, verbose_name='id кареты', null=True)
     client_name = models.CharField(max_length=30, default='0')
     address = models.CharField(max_length=100, verbose_name='Адрес вызова')
@@ -59,6 +62,7 @@ class Calls(models.Model):
 
 
 class CarsPosition(models.Model):
+    id = models.IntegerField(primary_key=True)
     car = models.ForeignKey(Cars, on_delete=models.PROTECT, verbose_name='id машины', unique=True)
     lat = models.FloatField()
     long = models.FloatField()

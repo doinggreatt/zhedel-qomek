@@ -3,7 +3,7 @@ from .models import Calls, Cars
 from .geologic import ClientStreet
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
-
+from django.db.models import Max
 
 class CallSerializer(serializers.Serializer):
 
@@ -16,10 +16,12 @@ class CallSerializer(serializers.Serializer):
     address = serializers.CharField(required=False)
 
     def create(self, validated_data):
+        max_id_record = Calls.objects.aggregate(max_id=Max('id'))
+        max_id_value = max_id_record['max_id']
         street = ClientStreet(validated_data['latitude'], validated_data['longitude']).output
 
         validated_data['address'] = street
-        Calls.objects.create(car_id=None,client_name=validated_data['client_name'], client_phone=validated_data['client_number'], 
+        Calls.objects.create(car_id=None, id=max_id_value+1, client_name=validated_data['client_name'], client_phone=validated_data['client_number'], 
         diagnose=validated_data['diagnose'], category=validated_data['category'], address=street, lat=validated_data['latitude'], long=validated_data['longitude'])
         return validated_data
 

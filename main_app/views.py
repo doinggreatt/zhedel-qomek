@@ -12,11 +12,12 @@ from django.forms import model_to_dict
 redis_instance = redis.StrictRedis(host=settings.REDIS_HOST,
                                   port=settings.REDIS_PORT, db=0)
 from .geologic import FindNearest
-
+from django.db.models import Max
 
 
 class CallCreate(APIView):
     def post(self, request): # Creating new call with POST request
+
         serializer = CallSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -104,8 +105,8 @@ class CarGeoUpdate(APIView):
         serializer = CarGeoSerializer(data=request.data, instance=instance)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
-        return Response(status=status.HTTP_200_OK)
+        address = Calls.objects.get(id=pk).address
+        return Response({"address": address}, status=status.HTTP_200_OK)
         
 class SetCallArrived(APIView):
     def put(self, request, *args, **kwargs):
