@@ -11,13 +11,13 @@ class CallSerializer(serializers.Serializer):
     client_number = serializers.CharField()
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
-    diagnose= serializers.CharField(max_length=20)
+    diagnose= serializers.CharField(max_length=100)
     category = serializers.IntegerField()
     address = serializers.CharField(required=False)
-
     def create(self, validated_data):
         max_id_record = Calls.objects.aggregate(max_id=Max('id'))
-        max_id_value = max_id_record['max_id']
+        max_id_value = max_id_record['max_id'] if max_id_record['max_id'] is not None else 0 
+
         street = ClientStreet(validated_data['latitude'], validated_data['longitude']).output
 
         validated_data['address'] = street

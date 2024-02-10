@@ -17,7 +17,6 @@ class Cars(models.Model):
     is_working = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-
         if self.is_working:
             max_id_record = CarsPosition.objects.aggregate(max_id=Max('id'))
             max_id_value = max_id_record['max_id'] if max_id_record['max_id'] is not None else 0 
@@ -40,7 +39,7 @@ class Calls(models.Model):
     
     client_phone = models.CharField(max_length=11)
 
-    diagnose = models.CharField(max_length=40, verbose_name='Предварительный диагноз при вызове')
+    diagnose = models.CharField(max_length=100, verbose_name='Предварительный диагноз при вызове')
     time_created = models.DateTimeField(auto_now_add=True, verbose_name='Время поступления вызова')
     time_accepted = models.DateTimeField(verbose_name='Время принятия вызова', null=True)
     time_arrived = models.DateTimeField(verbose_name='Время прибытия на вызов', null=True)

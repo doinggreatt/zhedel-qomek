@@ -47,7 +47,7 @@ class CallCreate(APIView):
         if instance.is_accepted == False:
             _car = FindNearest(instance.lat, instance.long)
             nearest_car = _car.find_nearest()
-            if nearest_car: # Если ближайшая машина нашлась, нужно зарегистрировать адрес вызова для водителя!
+            if nearest_car: 
                 distance = nearest_car['distance']
                 instance.is_accepted=True
                 instance.car_id_id  =Cars.objects.get(id=nearest_car['id'])
@@ -55,12 +55,10 @@ class CallCreate(APIView):
                 car_lat = current_car.lat 
                 car_long = current_car.long
                 current_car.call_address = instance.address
-                print(current_car.call_address)
                 current_car.save()
-                print(current_car.call_address)
                 instance.save()
                 return Response({"lat": car_lat, "long": car_long})
-            else: # Если ближайшая машина не нашлась
+            else: 
                 return Response({"status": "Call not accepted yet, finding car"})
         else:
             _id= instance.car_id_id 
